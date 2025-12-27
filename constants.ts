@@ -5,7 +5,9 @@ import BaseCustomCommand from "./core/base.customCommand";
 import ExpectCustomCommand from "./core/expect.customCommand";
 import GetTextCustomCommand from "./core/getText.customCommand";
 
-export const vibe = browserSync.launch()
+const headless = process.env.HEADLESS?.toLowerCase() === "true" ? true : false
+
+export const vibe = browserSync.launch({ headless: headless })
 export const expectTs = expect
 
 /** Custom Commands */
