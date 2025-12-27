@@ -177,6 +177,44 @@ BASE_URL=https://exemplo.com
 PRODUCT_NAME=Nome do Produto
 ```
 
+## 🔄 CI/CD - GitHub Actions
+
+O projeto utiliza **GitHub Actions** para automação de integração contínua (CI). A pipeline executa automaticamente validações e testes em cada push e pull request.
+
+### Pipeline de CI
+
+A pipeline de CI (`/.github/workflows/ci.yml`) executa:
+
+1. **Lint e Verificação de Tipos**:
+   - ✅ Validação de código com ESLint
+   - ✅ Verificação de tipos TypeScript
+
+2. **Testes**:
+   - ✅ Execução de todos os testes automatizados
+   - ✅ Testa em múltiplas versões do Node.js (20.x e 22.x)
+
+### Configuração de Secrets
+
+Para que os testes funcionem corretamente no GitHub Actions, configure os seguintes **Secrets** no repositório:
+
+1. Acesse: **Settings** → **Secrets and variables** → **Actions**
+2. Adicione os secrets:
+
+| Secret | Descrição | Exemplo |
+|--------|-----------|---------|
+| `BASE_URL` | URL base da aplicação a ser testada | `https://automationexercise.com` |
+| `PRODUCT_NAME` | Nome do produto sendo testado | `Automation Exercise` |
+
+**Nota**: Se os secrets não estiverem configurados, valores padrão serão usados.
+
+### Quando a Pipeline Executa
+
+- ✅ Push para branches: `main`, `master`, `develop`
+- ✅ Pull Requests para essas branches
+- ✅ Execução manual via GitHub Actions UI
+
+Para mais detalhes, consulte [`.github/workflows/README.md`](.github/workflows/README.md).
+
 ## 🛡️ Validações e Qualidade de Código
 
 O projeto utiliza **Husky** para garantir qualidade e consistência do código através de hooks Git automatizados. Todas as validações são executadas automaticamente antes de commits e pushes.
