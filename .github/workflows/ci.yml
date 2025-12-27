@@ -52,6 +52,23 @@ jobs:
                   cache: "npm"
                   cache-dependency-path: package-lock.json
 
+            - name: 🌐 Instalar dependências do navegador
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y \
+                      chromium-browser \
+                      chromium-chromedriver \
+                      libnss3 \
+                      libatk-bridge2.0-0 \
+                      libdrm2 \
+                      libxkbcommon0 \
+                      libxcomposite1 \
+                      libxdamage1 \
+                      libxfixes3 \
+                      libxrandr2 \
+                      libgbm1 \
+                      libasound2
+
             - name: 📦 Instalar dependências
               run: npm ci
 
@@ -59,7 +76,7 @@ jobs:
               run: |
                   echo "BASE_URL=${{ secrets.BASE_URL}}" >> .env
                   echo "PRODUCT_NAME=${{ secrets.PRODUCT_NAME}}" >> .env
-                  echo "HEADLESS=${{ secrets.HEADLESS}}" >> .env
+                  echo "HEADLESS=${{ secrets.HEADLESS || 'true' }}" >> .env
 
             - name: 🧪 Executar testes
               run: npm run test
