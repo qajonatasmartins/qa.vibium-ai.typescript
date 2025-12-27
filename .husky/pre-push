@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🚀 Executando validações antes do push..."
+
+# Executa testes antes de fazer push
+echo "🧪 Executando testes..."
+npm test
+

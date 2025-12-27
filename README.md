@@ -10,6 +10,7 @@ Projeto de automação de testes end-to-end (E2E) desenvolvido em TypeScript uti
 - [Dependências](#dependências)
 - [Configuração](#configuração)
 - [Scripts Disponíveis](#scripts-disponíveis)
+- [Validações e Qualidade de Código](#validações-e-qualidade-de-código)
 - [Como Usar](#como-usar)
 
 ## 🎯 Visão Geral
@@ -84,6 +85,13 @@ qa.vibuim-ai.typescript/
 │   └── login/
 │       └── login.test.ts         # Testes de login
 ├── constants.ts            # Constantes e instâncias compartilhadas
+├── .husky/                 # Hooks Git (Husky)
+│   ├── pre-commit         # Validações antes do commit
+│   ├── commit-msg         # Validação de mensagens de commit
+│   └── pre-push           # Validações antes do push
+├── .eslintrc.json         # Configuração ESLint
+├── .lintstagedrc.json     # Configuração lint-staged
+├── commitlint.config.js   # Configuração commitlint
 ├── package.json           # Dependências e scripts
 ├── tsconfig.json          # Configuração TypeScript
 └── README.md              # Documentação do projeto
@@ -105,9 +113,16 @@ qa.vibuim-ai.typescript/
 
 | Dependência | Versão | Descrição |
 |------------|--------|-----------|
+| **@commitlint/cli** | ^19.0.0 | Validador de mensagens de commit (Conventional Commits) |
+| **@commitlint/config-conventional** | ^19.0.0 | Configuração padrão para commitlint |
 | **@types/chai** | ^5.0.1 | Definições de tipos TypeScript para Chai |
 | **@types/mocha** | ^10.0.10 | Definições de tipos TypeScript para Mocha |
 | **@types/node** | ^22.10.5 | Definições de tipos TypeScript para Node.js |
+| **@typescript-eslint/eslint-plugin** | ^8.0.0 | Plugin ESLint para TypeScript |
+| **@typescript-eslint/parser** | ^8.0.0 | Parser ESLint para TypeScript |
+| **eslint** | ^8.57.0 | Linter JavaScript/TypeScript |
+| **husky** | ^9.0.0 | Git hooks para automatizar tarefas |
+| **lint-staged** | ^15.0.0 | Executa linters apenas em arquivos staged |
 | **ts-node** | ^10.9.2 | Executor TypeScript para Node.js (permite executar .ts diretamente) |
 | **typescript** | ^5.7.2 | Compilador TypeScript |
 
@@ -151,6 +166,8 @@ qa.vibuim-ai.typescript/
 npm install
 ```
 
+**Nota**: O script `prepare` será executado automaticamente após `npm install`, inicializando o Husky e configurando os hooks Git. Consulte `INSTALACAO.md` para mais detalhes.
+
 ### Variáveis de Ambiente
 
 Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
@@ -160,18 +177,99 @@ BASE_URL=https://exemplo.com
 PRODUCT_NAME=Nome do Produto
 ```
 
+## 🛡️ Validações e Qualidade de Código
+
+O projeto utiliza **Husky** para garantir qualidade e consistência do código através de hooks Git automatizados. Todas as validações são executadas automaticamente antes de commits e pushes.
+
+### Hooks Configurados
+
+#### 🔍 pre-commit
+Executado automaticamente antes de cada commit:
+- ✅ Valida e corrige código com **ESLint** (apenas arquivos staged)
+- ✅ Verifica tipos TypeScript (`type-check`)
+
+#### 📝 commit-msg
+Valida a mensagem de commit seguindo o padrão **Conventional Commits**:
+- ✅ Formato obrigatório: `tipo(escopo opcional): descrição`
+- ✅ Tipos permitidos: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`, `ci`, `build`, `revert`
+
+**Exemplos de commits válidos:**
+```bash
+feat: adiciona novo teste de login
+fix: corrige erro de validação no menu
+test: adiciona testes para componente de login
+docs: atualiza documentação do projeto
+refactor: melhora estrutura de custom commands
+chore: atualiza dependências
+```
+
+**Exemplos de commits inválidos:**
+```bash
+adiciona teste          # ❌ Falta tipo
+fix bug                 # ❌ Falta dois pontos
+teste                   # ❌ Formato incorreto
+```
+
+#### 🚀 pre-push
+Executado automaticamente antes de cada push:
+- ✅ Executa todos os testes (`npm test`)
+
+### Como Funciona
+
+1. **Ao fazer commit**: O código é validado automaticamente
+2. **Se houver erros**: O commit é bloqueado até que sejam corrigidos
+3. **Ao fazer push**: Os testes são executados para garantir que tudo está funcionando
+
+### Pular Validações (Não Recomendado)
+
+Se precisar pular as validações (apenas em casos excepcionais):
+
+```bash
+# Pular pre-commit
+git commit --no-verify -m "mensagem"
+
+# Pular pre-push
+git push --no-verify
+```
+
+⚠️ **Atenção**: Use apenas em casos excepcionais e com conhecimento do impacto.
+
+### Ferramentas de Qualidade
+
+- **ESLint**: Validação de código TypeScript/JavaScript
+- **TypeScript**: Verificação de tipos em tempo de compilação
+- **Commitlint**: Validação de mensagens de commit (Conventional Commits)
+- **lint-staged**: Executa validações apenas em arquivos modificados (otimização de performance)
+
+### Documentação Adicional
+
+Para mais detalhes sobre configuração e troubleshooting, consulte:
+- `.husky/README.md` - Documentação dos hooks Git
+- `docs/HUSKY_SETUP.md` - Guia completo de configuração do Husky
+
 ## 🚀 Scripts Disponíveis
 
 | Script | Comando | Descrição |
 |--------|---------|-----------|
 | **test** | `npm test` | Executa todos os testes usando dotenvx para carregar variáveis de ambiente |
+| **lint** | `npm run lint` | Executa ESLint para validar o código |
+| **lint:fix** | `npm run lint:fix` | Executa ESLint e corrige problemas automaticamente |
+| **type-check** | `npm run type-check` | Verifica tipos TypeScript sem gerar arquivos |
 
 ### Exemplo de Execução
 
 ```bash
 # Executar todos os testes
 npm test
-```
+
+# Validar código
+npm run lint
+
+# Corrigir problemas de lint automaticamente
+npm run lint:fix
+
+# Verificar tipos
+npm run type-check
 
 ## 💻 Como Usar
 
@@ -291,26 +389,50 @@ O projeto utiliza TypeScript com configurações strict mode ativadas:
 
 ## 📝 Convenções de Código
 
-- **Nomenclatura**: 
-  - Classes: PascalCase (ex: `BaseCustomCommand`)
-  - Arquivos: camelCase (ex: `base.customCommand.ts`)
-  - Constantes: camelCase (ex: `baseCustomCommand`)
-  - Dados de teste: `ct[numero]` (ex: `ct001`, `ct002`)
-- **Organização**: Separação clara entre seletores (components), dados (data), Custom Commands (core) e testes
-- **Estrutura de Testes**:
-  - `describe`: Nome do produto (`process.env.PRODUCT_NAME`)
-  - `context`: Funcionalidade a ser testada
-  - `it`: Caso de teste com identificação `[CT-XXX]`
-- **Padrão de Teste**: Triple A (Arrange, Act, Assert)
-- **Documentação**: JSDoc nos métodos públicos dos Custom Commands
+### Nomenclatura
+- **Classes**: PascalCase (ex: `BaseCustomCommand`)
+- **Arquivos**: camelCase (ex: `base.customCommand.ts`)
+- **Constantes**: camelCase (ex: `baseCustomCommand`)
+- **Dados de teste**: `ct[numero]` (ex: `ct001`, `ct002`)
+
+### Organização
+- Separação clara entre seletores (components), dados (data), Custom Commands (core) e testes
+- Cada funcionalidade possui sua própria pasta com elementos e dados
+
+### Estrutura de Testes
+- **`describe`**: Nome do produto (`process.env.PRODUCT_NAME`)
+- **`context`**: Funcionalidade a ser testada
+- **`it`**: Caso de teste com identificação `[CT-XXX]`
+
+### Padrão de Teste
+- **Triple A** (Arrange, Act, Assert)
+
+### Mensagens de Commit
+- **Formato**: `tipo(escopo opcional): descrição`
+- **Tipos**: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`, `ci`, `build`, `revert`
+- **Exemplo**: `feat: adiciona novo teste de login`
+
+### Documentação
+- JSDoc nos métodos públicos dos Custom Commands
+- README.md atualizado com todas as mudanças significativas
 
 ## 🤝 Contribuindo
 
 1. Faça um fork do projeto
 2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+3. Commit suas mudanças seguindo o padrão Conventional Commits:
+   ```bash
+   git commit -m "feat: adiciona nova funcionalidade"
+   ```
 4. Push para a branch (`git push origin feature/AmazingFeature`)
 5. Abra um Pull Request
+
+### Regras de Contribuição
+
+- ✅ Todos os commits devem seguir o padrão **Conventional Commits**
+- ✅ O código deve passar nas validações do ESLint
+- ✅ Os testes devem estar passando antes do push
+- ✅ Documente mudanças significativas no README.md
 
 ## 📄 Licença
 

@@ -24,7 +24,7 @@
     "exactOptionalPropertyTypes": true,
     "types": ["mocha", "chai", "node"]
   },
-  "include": ["src/**/*", "tests/**/*"],
+  "include": ["components/**/*", "core/**/*", "data/**/*", "tests/**/*", "constants.ts"],
   "exclude": ["node_modules", "dist", "**/*.js"],
   "ts-node": {
     "esm": false,

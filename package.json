@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "dotenvx run -- mocha --require ts-node/register tests/**/*.test.ts",
-    "test:watch": "mocha --require ts-node/register tests/**/*.test.ts --watch",
-    "build": "tsc",
-    "dev": "ts-node src/index.ts"
+    "prepare": "husky",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "type-check": "tsc --noEmit"
   },
   "repository": {
     "type": "git",
@@ -28,9 +29,16 @@
     "zod": "^4.2.1"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
     "@types/chai": "^5.0.1",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.10.5",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^8.57.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
   }
