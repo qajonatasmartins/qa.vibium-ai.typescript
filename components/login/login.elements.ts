@@ -1,3 +1,6 @@
 export const loginComponents = {
-    txtTitleLoginForm: ".login-form h2"
+    lblTitleLoginForm: ".login-form h2",
+    inpSignupName: "input[data-qa='signup-name']",
+    inpSignupEmail: "input[data-qa='signup-email']",
+    btnSignupSubmit: "button[data-qa='signup-button']",
 }

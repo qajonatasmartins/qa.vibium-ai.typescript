@@ -8,9 +8,7 @@ export default class BaseCustomCommand {
      * @returns Promise<void>
      */
     public async navigateTo(url: string) {
-        console.log("Navegando para a URL: ", url)
         await vibe.go(url)
-        console.log("URL navegada com sucesso: ", url)
     }
 
     /**
@@ -19,6 +17,5 @@ export default class BaseCustomCommand {
      */
     public async finishTestExecution() {
         await vibe.quit()
-        console.log("Navegador fechado com sucesso")
     }
 }

@@ -8,8 +8,6 @@ export default class GetTextCustomCommand {
      * @returns Promise<string>
      */
     public async getText(element: string) {
-        console.log("Obtendo o texto do elemento: ", element)
-        console.log("Texto obtido com sucesso: ", await vibe.find(element).text())
         return await vibe.find(element).text()
     }
 }

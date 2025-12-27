@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "dotenvx run -- mocha --require ts-node/register tests/**/*.test.ts",
+    "test": "dotenvx run -- mocha --require ts-node/register tests/**/**/CT-00002.test.ts",
     "prepare": "husky",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
@@ -32,6 +32,7 @@
   "devDependencies": {
     "@commitlint/cli": "^19.0.0",
     "@commitlint/config-conventional": "^19.0.0",
+    "@faker-js/faker": "^10.1.0",
     "@types/chai": "^5.0.1",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.10.5",

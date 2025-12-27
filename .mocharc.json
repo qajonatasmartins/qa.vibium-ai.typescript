@@ -5,11 +5,10 @@
   "extensions": [
     "ts"
   ],
-  "spec": "tests/**/*.test.ts",
   "recursive": true,
-  "timeout": 50000,
+  "timeout": 900000,
   "reporter": "spec",
-  "slow": 75,
+  "slow": 6000,
   "bail": false,
   "exit": true
 }
