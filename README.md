@@ -35,10 +35,12 @@ O projeto segue uma arquitetura em camadas com os seguintes componentes principa
    - Nomenclatura: `ct[numero]` para identificar casos de teste (ex: `ct001`)
 
 3. **Camada de Componentes** (`components/`)
-   - Centraliza os seletores CSS organizados por funcionalidade/feature
+   - Centraliza os seletores CSS e ações organizados por funcionalidade/feature
    - Cada componente possui:
-     - `*.elements.ts`: Definição dos seletores CSS em objetos JavaScript
-     - `*.interactions.ts`: (Opcional) Classes com métodos de interação reutilizáveis
+     - `*.elements.ts`: Definição dos seletores CSS
+     - `*.interactions.ts`: Classes com métodos de interação reutilizáveis (baixo nível)
+     - `*.actions.ts`: Classes com ações de alto nível que utilizam interactions
+     - `*.questions.ts`: Classes com validações e asserções específicas do componente
 
 4. **Camada Core** (`core/`)
    - Custom Commands reutilizáveis
@@ -47,51 +49,112 @@ O projeto segue uma arquitetura em camadas com os seguintes componentes principa
      - `BaseCustomCommand`: Navegação e controle do navegador
      - `ClickCustomCommand`: Abstração para cliques
      - `GetTextCustomCommand`: Abstração para obter textos
+     - `TypeCustomCommand`: Abstração para digitação de texto
      - `ExpectCustomCommand`: Abstração para asserções
 
-5. **Camada de Constantes** (`constants.ts`)
+5. **Camada de Builders** (`builder/`)
+   - Padrão Builder para construção de dados de teste
+   - Facilita a criação de objetos complexos com dados de teste
+   - Permite construção fluente e reutilizável de dados
+   - Organizados por funcionalidade/feature
+
+6. **Camada de Flows** (`flows/`)
+   - Fluxos de teste de alto nível que combinam múltiplas ações
+   - Orquestram sequências de ações para cenários complexos
+   - Organizados por funcionalidade/feature
+
+7. **Camada de Interfaces** (`interface/`)
+   - Definições de tipos TypeScript (interfaces e enums)
+   - Garante type safety em todo o projeto
+   - Organizadas por funcionalidade/feature
+
+8. **Camada de Constantes** (`constants.ts`)
    - Centraliza instâncias compartilhadas
    - Exporta instância do Vibium browser
-   - Exporta instâncias dos Custom Commands
+   - Exporta instâncias dos Custom Commands, Builders, Actions, Questions e Flows
 
 ### Fluxo de Execução
 
 ```
 Teste (Mocha) 
-  → Custom Commands (Core)
-    → Vibium (Framework)
-      → Navegador (Browser)
+  → Flows (Fluxos de alto nível)
+    → Actions (Ações de alto nível)
+      → Interactions (Interações de baixo nível)
+        → Custom Commands (Core)
+          → Vibium (Framework)
+            → Navegador (Browser)
 ```
+
+### Padrões Arquiteturais Utilizados
+
+1. **Pattern (Simplificado)**
+   - **Actions**: Representam ações de alto nível que o usuário pode realizar
+   - **Interactions**: Representam interações de baixo nível com elementos da página
+   - **Questions**: Representam validações e asserções específicas do componente
+
+2. **Builder Pattern**
+   - Utilizado para construção de dados de teste complexos
+   - Permite construção fluente e reutilizável
+   - Facilita a criação de objetos com dados aleatórios (usando Faker.js)
+
+3. **Custom Commands**
+   - Abstrações sobre o framework Vibium
+   - Comandos reutilizáveis para operações comuns
+   - Centralizados na camada `core/`
 
 ## 📁 Estrutura de Diretórios
 
 ```
 qa.vibuim-ai.typescript/
-├── components/              # Seletores organizados por funcionalidade
+├── builder/                # Builders para construção de dados de teste
+│   └── login/
+│       └── singup/
+│           ├── registerSignup.builder.ts  # Builder para dados de registro completo
+│           └── singup.builder.ts         # Builder para dados básicos de signup
+├── components/            # Componentes organizados por funcionalidade
 │   ├── login/
-│   │   └── login.elements.ts    # Seletores CSS do componente de login
+│   │   ├── login.actions.ts       # Ações de alto nível para login
+│   │   ├── login.elements.ts      # Seletores CSS do componente de login
+│   │   ├── login.interactions.ts  # Interações de baixo nível para login
+│   │   ├── login.questions.ts    # Validações e asserções para login
+│   │   └── signup/
+│   │       ├── signup.actions.ts       # Ações de alto nível para signup
+│   │       ├── signup.elements.ts      # Seletores CSS do componente de signup
+│   │       ├── signup.interactions.ts  # Interações de baixo nível para signup
+│   │       └── signup.questions.ts    # Validações e asserções para signup
 │   └── menu/
-│       ├── menu.elements.ts     # Seletores CSS do componente de menu
-│       └── menu.interactions.ts # (Opcional) Métodos de interação reutilizáveis
-├── core/                   # Custom Commands e abstrações
+│       ├── menu.actions.ts       # Ações de alto nível para menu
+│       ├── menu.elements.ts      # Seletores CSS do componente de menu
+│       └── menu.interactions.ts  # Interações de baixo nível para menu
+├── core/                  # Custom Commands e abstrações
 │   ├── base.customCommand.ts      # Comandos base (navegação, etc)
 │   ├── click.customCommand.ts     # Comandos de clique
-│   ├── expect.customCommand.ts   # Comandos de asserção
-│   └── getText.customCommand.ts  # Comandos para obter texto
-├── data/                   # Dados de teste organizados por funcionalidade
+│   ├── expect.customCommand.ts    # Comandos de asserção
+│   ├── getText.customCommand.ts   # Comandos para obter texto
+│   └── type.customCommand.ts      # Comandos para digitação
+├── data/                  # Dados de teste organizados por funcionalidade
 │   └── login/
-│       └── login.data.ts         # Dados dos casos de teste de login
-├── tests/                  # Testes automatizados
+│       └── login.data.ts          # Dados dos casos de teste de login
+├── flows/                 # Fluxos de teste de alto nível
 │   └── login/
-│       └── login.test.ts         # Testes de login
-├── constants.ts            # Constantes e instâncias compartilhadas
-├── .husky/                 # Hooks Git (Husky)
+│       └── singup.flows.ts        # Fluxos de teste para signup
+├── interface/             # Interfaces e tipos TypeScript
+│   └── login/
+│       └── ISingup.interface.ts   # Interfaces para dados de signup
+├── tests/                 # Testes automatizados
+│   └── login/
+│       ├── CT-00001.test.ts       # Caso de teste CT-00001
+│       └── singup/
+│           └── CT-00002.test.ts   # Caso de teste CT-00002
+├── constants.ts           # Constantes e instâncias compartilhadas
+├── .husky/                # Hooks Git (Husky)
 │   ├── pre-commit         # Validações antes do commit
 │   ├── commit-msg         # Validação de mensagens de commit
 │   └── pre-push           # Validações antes do push
 ├── .eslintrc.json         # Configuração ESLint
 ├── .lintstagedrc.json     # Configuração lint-staged
 ├── commitlint.config.js   # Configuração commitlint
+├── mcp.json               # Configuração MCP (Model Context Protocol) - Servidores MCP para integração
 ├── package.json           # Dependências e scripts
 ├── tsconfig.json          # Configuração TypeScript
 └── README.md              # Documentação do projeto
@@ -120,6 +183,7 @@ qa.vibuim-ai.typescript/
 | **@types/node** | ^22.10.5 | Definições de tipos TypeScript para Node.js |
 | **@typescript-eslint/eslint-plugin** | ^8.0.0 | Plugin ESLint para TypeScript |
 | **@typescript-eslint/parser** | ^8.0.0 | Parser ESLint para TypeScript |
+| **@faker-js/faker** | ^10.1.0 | Biblioteca para geração de dados falsos/aleatórios |
 | **eslint** | ^8.57.0 | Linter JavaScript/TypeScript |
 | **husky** | ^9.0.0 | Git hooks para automatizar tarefas |
 | **lint-staged** | ^15.0.0 | Executa linters apenas em arquivos staged |
@@ -153,6 +217,11 @@ qa.vibuim-ai.typescript/
 - **Função**: Carrega variáveis de ambiente de arquivos `.env`
 - **Uso no projeto**: Utilizado para carregar configurações como `BASE_URL` e `PRODUCT_NAME`
 - **Segurança**: Suporta variáveis criptografadas
+
+#### @faker-js/faker (^10.1.0)
+- **Função**: Biblioteca para geração de dados falsos/aleatórios para testes
+- **Uso no projeto**: Utilizado nos Builders para gerar dados de teste dinâmicos (nomes, emails, endereços, etc.)
+- **Exemplo de uso**: `faker.person.fullName()`, `faker.internet.email()`
 
 ## ⚙️ Configuração
 
@@ -354,7 +423,7 @@ A estrutura dos testes segue o padrão:
 
 - **`describe`**: Nome do produto (usando `process.env.PRODUCT_NAME`)
 - **`context`**: Funcionalidade que será testada (ex: "Login/Signup")
-- **`it`**: Caso de teste específico com identificação `[CT-XXX]`
+- **`it`**: Caso de teste específico com identificação `[CT-XXXXX]`
 
 ### Casos de Teste
 
@@ -369,59 +438,153 @@ Consulte o board para visualizar todos os casos de teste disponíveis e seus sta
 
 ### Criando um Novo Teste
 
-1. **Criar seletores** em `components/[feature]/[feature].elements.ts`:
+1. **Criar interfaces** em `interface/[feature]/I[Feature].interface.ts` (se necessário):
 ```typescript
-export const loginComponents = {
-    txtTitleLoginForm: ".login-form h2"
+export interface ILogin {
+    email: string;
+    password: string;
 }
 ```
 
-2. **Criar dados de teste** em `data/[feature]/[feature].data.ts`:
+2. **Criar seletores** em `components/[feature]/[feature].elements.ts`:
+```typescript
+export const loginComponents = {
+    lblTitleLoginForm: ".login-form h2"
+}
+```
+
+3. **Criar interactions** em `components/[feature]/[feature].interactions.ts`:
+```typescript
+import { clickCustomCommand, getTextCustomCommand } from "../../constants";
+import { loginComponents } from "./login.elements";
+
+export default class LoginInteractions {
+    public async clickBtnSignupLogin() {
+        await clickCustomCommand.click(menuComponents.btnSignupLoginMenu);
+    }
+    
+    public async getTextLblTitleLoginForm() {
+        return await getTextCustomCommand.getText(loginComponents.txtTitleLoginForm);
+    }
+}
+```
+
+4. **Criar actions** em `components/[feature]/[feature].actions.ts`:
+```typescript
+import LoginInteractions from "./login.interactions";
+
+export default class LoginActions {
+    private interactions = new LoginInteractions();
+    
+    public async openSignupLoginPage() {
+        await this.interactions.clickBtnSignupLogin();
+    }
+}
+```
+
+5. **Criar questions** em `components/[feature]/[feature].questions.ts`:
+```typescript
+import { expectCustomCommand } from "../../constants";
+import LoginInteractions from "./login.interactions";
+
+export default class LoginQuestions {
+    private interactions = new LoginInteractions();
+    
+    public async isLoginFormTitleEqualTo(expectedTitle: string) {
+        await expectCustomCommand.assertToEqualText(
+            await this.interactions.getTextLblTitleLoginForm(), 
+            expectedTitle, 
+            "O título do formulário de login não é igual ao esperado"
+        );
+    }
+}
+```
+
+6. **Criar dados de teste** em `data/[feature]/[feature].data.ts`:
 ```typescript
 export const ct001 = {
     titleLoginForm: "Login to your account"
 }
 ```
 
-3. **Criar teste** em `tests/[feature]/[feature].test.ts`:
+7. **Criar teste** em `tests/[feature]/CT-XXXXX.test.ts` ou `tests/[feature]/[subfeature]/CT-XXXXX.test.ts`:
 ```typescript
-import {
-    baseCustomCommand, clickCustomCommand,
-    expectCustomCommand, getTextCustomCommand
-} from "../../constants";
-import { menuComponents } from "../../components/menu/menu.elements";
-import { loginComponents } from "../../components/login/login.elements";
-import { ct001 } from "../../data/login/login.data";
+// Exemplo 1: Teste simples usando Actions e Questions
+import { baseCustomCommand, menuActions, loginQuestions } from "../../constants";
+import { ct00001 } from "../../data/login/login.data";
 
 describe(`${process.env.PRODUCT_NAME}`, () => {
-
     context(`${process.env.PRODUCT_NAME} - Login/Signup`, () => {
-
-        before('Navigate to the login page', async () => {
+        before('Navegar para a página de login', async () => {
             await baseCustomCommand.navigateTo(process.env.BASE_URL!)
         })
 
-        it(`[CT-001] - Login/Signup - Validate title login form`, async () => {
-            // Arrange: Preparação (se necessário)
+        it('[CT-00001] - Login/Signup - Validar o título do formulário de login', async () => {
+            // Arrange: Preparação
+            await menuActions.openSignupLoginPage();
             
-            // Act: Execução da ação
-            await clickCustomCommand.click(menuComponents.btnSignupLoginMenu)
-            
-            // Assert: Validação
-            await expectCustomCommand.expect(
-                ct001.titleLoginForm, 
-                await getTextCustomCommand.getText(loginComponents.txtTitleLoginForm)
-            )
+            // Act & Assert: Execução e validação
+            await loginQuestions.isLoginFormTitleEqualTo(ct00001.titleLoginForm);
         })
 
-        after('Finish test execution', async () => {
+        after('Finalizar execução do teste', async () => {
             await baseCustomCommand.finishTestExecution()
         })
     })
 })
 ```
 
-**Nota**: Os testes utilizam diretamente os Custom Commands com os seletores definidos nos arquivos `*.elements.ts` e dados dos arquivos `*.data.ts`. Não é necessário criar classes Page Object - a abstração é feita através dos Custom Commands.
+```typescript
+// Exemplo 2: Teste usando Flows e Builders
+import { baseCustomCommand, registerSignupBuilder, singupFlows } from "../../../constants";
+import type { ISingupRegisterData } from "../../../interface/login/ISingup.interface";
+
+describe(`${process.env.PRODUCT_NAME}`, () => {
+    let signupData: ISingupRegisterData
+
+    context(`${process.env.PRODUCT_NAME} - Login/Signup`, () => {
+        before('Navegar para a página de login', async () => {
+            await baseCustomCommand.navigateTo(process.env.BASE_URL!)
+            // Criar dados de teste usando Builder
+            signupData = await registerSignupBuilder.anRegisterSignup().build()
+        })
+
+        it('[CT-00002] - Login/Signup - Validar o processo de signup', async () => {
+            // Arrange, Act & Assert: Fluxo completo usando Flow
+            await singupFlows.openSignupPageAndRegisterSignupMr(signupData)
+        })
+    })
+})
+```
+
+**Nota**: A arquitetura utiliza uma separação clara de responsabilidades:
+- **Elements**: Seletores CSS
+- **Interactions**: Interações de baixo nível com elementos
+- **Actions**: Ações de alto nível que combinam interações
+- **Questions**: Validações e asserções
+- **Flows**: Fluxos complexos que combinam múltiplas ações
+- **Builders**: Construção de dados de teste
+
+### Estrutura de Arquivos de Teste
+
+Os arquivos de teste seguem uma organização hierárquica:
+
+```
+tests/
+└── [feature]/              # Funcionalidade principal
+    ├── CT-XXXXX.test.ts    # Casos de teste da funcionalidade
+    └── [subfeature]/       # Subfuncionalidade (opcional)
+        └── CT-XXXXX.test.ts # Casos de teste da subfuncionalidade
+```
+
+**Exemplos:**
+- `tests/login/CT-00001.test.ts` - Teste de login
+- `tests/login/singup/CT-00002.test.ts` - Teste de signup (subfuncionalidade de login)
+
+**Convenções:**
+- Nome do arquivo: `CT-XXXXX.test.ts` (onde XXXXX é o número do caso de teste com 5 dígitos)
+- Identificação no teste: `[CT-XXXXX]` no nome do `it()`
+- Um arquivo por caso de teste para facilitar manutenção e rastreabilidade
 
 ### Usando Custom Commands
 
@@ -431,11 +594,49 @@ O projeto fornece Custom Commands reutilizáveis:
 - **`baseCustomCommand.finishTestExecution()`**: Fecha o navegador
 - **`clickCustomCommand.click(selector)`**: Clica em um elemento
 - **`getTextCustomCommand.getText(selector)`**: Obtém o texto de um elemento
+- **`typeCustomCommand.type(selector, text)`**: Digita texto em um elemento
 - **`expectCustomCommand.expect(expected, actual)`**: Faz uma asserção
+
+### Usando Actions, Questions e Flows
+
+O projeto utiliza uma arquitetura em camadas que facilita a reutilização e manutenção:
+
+- **Actions**: Ações de alto nível que combinam múltiplas interações
+  - Exemplo: `loginActions.signupStart(signupData)` - Inicia o processo de signup
+  - Exemplo: `menuActions.openSignupLoginPage()` - Abre a página de login/signup
+
+- **Questions**: Validações e asserções específicas do componente
+  - Exemplo: `loginQuestions.isLoginFormTitleEqualTo(expectedTitle)` - Valida o título do formulário
+
+- **Flows**: Fluxos de teste que combinam múltiplas ações
+  - Exemplo: `singupFlows.openSignupPageAndRegisterSignupMr(signupData)` - Abre a página e registra um usuário masculino
+
+### Usando Builders
+
+Os Builders facilitam a criação de dados de teste complexos:
+
+```typescript
+// Criar dados básicos de signup
+const signupData = singupBuilder
+    .anSignup()
+    .withName("João Silva")
+    .withEmail("joao@example.com")
+    .build()
+
+// Criar dados completos de registro com dados aleatórios
+const registerData = registerSignupBuilder
+    .anRegisterSignup()  // Cria com dados aleatórios do Faker
+    .withName("Maria Santos")
+    .withEmail("maria@example.com")
+    .build()
+```
 
 ### Gerenciando Dados de Teste
 
-Os dados de teste são organizados na pasta `data/` seguindo a mesma estrutura de funcionalidades:
+Os dados de teste podem ser organizados de duas formas:
+
+#### 1. Dados Estáticos (`data/`)
+Dados de teste estáticos organizados na pasta `data/` seguindo a mesma estrutura de funcionalidades:
 
 - Cada arquivo `*.data.ts` contém objetos exportados com dados específicos
 - Nomenclatura: `ct[numero]` para identificar cada caso de teste
@@ -443,14 +644,30 @@ Os dados de teste são organizados na pasta `data/` seguindo a mesma estrutura d
 
 ```typescript
 // data/login/login.data.ts
-export const ct001 = {
+export const ct00001 = {
     titleLoginForm: "Login to your account"
 }
 
-export const ct002 = {
+export const ct00002 = {
     email: "test@example.com",
     password: "password123"
 }
+```
+
+#### 2. Dados Dinâmicos (Builders)
+Dados de teste dinâmicos gerados através de Builders:
+
+- Utilizam Faker.js para gerar dados aleatórios
+- Permitem construção fluente e customização
+- Exemplo:
+
+```typescript
+// Usando Builder com dados aleatórios
+const signupData = await registerSignupBuilder
+    .anRegisterSignup()  // Cria com dados aleatórios
+    .withName("João Silva")  // Customiza nome
+    .withEmail("joao@example.com")  // Customiza email
+    .build()
 ```
 
 Isso permite centralizar os dados de teste e facilitar a manutenção, além de separar dados de lógica de teste.
@@ -468,19 +685,25 @@ O projeto utiliza TypeScript com configurações strict mode ativadas:
 ## 📝 Convenções de Código
 
 ### Nomenclatura
-- **Classes**: PascalCase (ex: `BaseCustomCommand`)
-- **Arquivos**: camelCase (ex: `base.customCommand.ts`)
-- **Constantes**: camelCase (ex: `baseCustomCommand`)
+- **Classes**: PascalCase (ex: `BaseCustomCommand`, `LoginActions`)
+- **Arquivos**: camelCase (ex: `base.customCommand.ts`, `login.actions.ts`)
+- **Constantes**: camelCase (ex: `baseCustomCommand`, `loginActions`)
 - **Dados de teste**: `ct[numero]` (ex: `ct001`, `ct002`)
+- **Casos de teste**: `CT-XXXXX` (ex: `CT-00001`, `CT-00002`)
+- **Interfaces**: `I[Nome]` (ex: `ISingup`, `ILogin`)
 
 ### Organização
-- Separação clara entre seletores (components), dados (data), Custom Commands (core) e testes
-- Cada funcionalidade possui sua própria pasta com elementos e dados
+- Separação clara entre seletores (elements), interações (interactions), ações (actions), validações (questions), dados (data), builders, flows, Custom Commands (core) e testes
+- Cada funcionalidade possui sua própria pasta com elementos, interações, ações, questions e dados
+- Interfaces organizadas por funcionalidade na pasta `interface/`
+- Builders organizados por funcionalidade na pasta `builder/`
+- Flows organizados por funcionalidade na pasta `flows/`
 
 ### Estrutura de Testes
 - **`describe`**: Nome do produto (`process.env.PRODUCT_NAME`)
 - **`context`**: Funcionalidade a ser testada
-- **`it`**: Caso de teste com identificação `[CT-XXX]`
+- **`it`**: Caso de teste com identificação `[CT-XXXXX]` (5 dígitos)
+- Arquivos de teste seguem o padrão: `CT-XXXXX.test.ts`
 
 ### Padrão de Teste
 - **Triple A** (Arrange, Act, Assert)
