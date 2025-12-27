@@ -1,1 +1,322 @@
 # qa.vibuim-ai.typescript
+
+Projeto de automação de testes end-to-end (E2E) desenvolvido em TypeScript utilizando o framework Vibium para automação de testes web.
+
+## 📋 Índice
+
+- [Visão Geral](#visão-geral)
+- [Arquitetura do Projeto](#arquitetura-do-projeto)
+- [Estrutura de Diretórios](#estrutura-de-diretórios)
+- [Dependências](#dependências)
+- [Configuração](#configuração)
+- [Scripts Disponíveis](#scripts-disponíveis)
+- [Como Usar](#como-usar)
+
+## 🎯 Visão Geral
+
+Este projeto implementa uma arquitetura baseada em Custom Commands para testes automatizados, utilizando TypeScript para type safety e o framework Vibium para interação com o navegador. O projeto segue princípios de Clean Code e Separation of Concerns, organizando o código em camadas bem definidas com abstrações reutilizáveis sobre o framework de automação.
+
+## 🏗️ Arquitetura do Projeto
+
+### Padrão Arquitetural
+
+O projeto segue uma arquitetura em camadas com os seguintes componentes principais:
+
+1. **Camada de Testes** (`tests/`)
+   - Contém os arquivos de teste usando Mocha
+   - Organizados por funcionalidade/feature
+   - Seguem o padrão **Triple A** (Arrange, Act, Assert)
+   - Estrutura: `describe` com nome do produto, `context` com funcionalidade
+
+2. **Camada de Dados** (`data/`)
+   - Centraliza dados de teste organizados por funcionalidade/feature
+   - Cada arquivo contém objetos com dados específicos de cada caso de teste
+   - Nomenclatura: `ct[numero]` para identificar casos de teste (ex: `ct001`)
+
+3. **Camada de Componentes** (`components/`)
+   - Centraliza os seletores CSS organizados por funcionalidade/feature
+   - Cada componente possui:
+     - `*.elements.ts`: Definição dos seletores CSS em objetos JavaScript
+     - `*.interactions.ts`: (Opcional) Classes com métodos de interação reutilizáveis
+
+4. **Camada Core** (`core/`)
+   - Custom Commands reutilizáveis
+   - Abstrações sobre o framework Vibium
+   - Comandos customizados:
+     - `BaseCustomCommand`: Navegação e controle do navegador
+     - `ClickCustomCommand`: Abstração para cliques
+     - `GetTextCustomCommand`: Abstração para obter textos
+     - `ExpectCustomCommand`: Abstração para asserções
+
+5. **Camada de Constantes** (`constants.ts`)
+   - Centraliza instâncias compartilhadas
+   - Exporta instância do Vibium browser
+   - Exporta instâncias dos Custom Commands
+
+### Fluxo de Execução
+
+```
+Teste (Mocha) 
+  → Custom Commands (Core)
+    → Vibium (Framework)
+      → Navegador (Browser)
+```
+
+## 📁 Estrutura de Diretórios
+
+```
+qa.vibuim-ai.typescript/
+├── components/              # Seletores organizados por funcionalidade
+│   ├── login/
+│   │   └── login.elements.ts    # Seletores CSS do componente de login
+│   └── menu/
+│       ├── menu.elements.ts     # Seletores CSS do componente de menu
+│       └── menu.interactions.ts # (Opcional) Métodos de interação reutilizáveis
+├── core/                   # Custom Commands e abstrações
+│   ├── base.customCommand.ts      # Comandos base (navegação, etc)
+│   ├── click.customCommand.ts     # Comandos de clique
+│   ├── expect.customCommand.ts   # Comandos de asserção
+│   └── getText.customCommand.ts  # Comandos para obter texto
+├── data/                   # Dados de teste organizados por funcionalidade
+│   └── login/
+│       └── login.data.ts         # Dados dos casos de teste de login
+├── tests/                  # Testes automatizados
+│   └── login/
+│       └── login.test.ts         # Testes de login
+├── constants.ts            # Constantes e instâncias compartilhadas
+├── package.json           # Dependências e scripts
+├── tsconfig.json          # Configuração TypeScript
+└── README.md              # Documentação do projeto
+```
+
+## 📦 Dependências
+
+### Dependências de Produção
+
+| Dependência | Versão | Descrição |
+|------------|--------|-----------|
+| **@dotenvx/dotenvx** | ^1.51.2 | Gerenciamento de variáveis de ambiente de forma segura |
+| **chai** | ^6.2.2 | Biblioteca de asserções para testes (BDD/TDD style) |
+| **mocha** | ^11.7.5 | Framework de testes JavaScript/TypeScript |
+| **vibium** | ^0.1.2 | Framework de automação de testes web |
+| **zod** | ^4.2.1 | Biblioteca de validação de schemas TypeScript-first |
+
+### Dependências de Desenvolvimento
+
+| Dependência | Versão | Descrição |
+|------------|--------|-----------|
+| **@types/chai** | ^5.0.1 | Definições de tipos TypeScript para Chai |
+| **@types/mocha** | ^10.0.10 | Definições de tipos TypeScript para Mocha |
+| **@types/node** | ^22.10.5 | Definições de tipos TypeScript para Node.js |
+| **ts-node** | ^10.9.2 | Executor TypeScript para Node.js (permite executar .ts diretamente) |
+| **typescript** | ^5.7.2 | Compilador TypeScript |
+
+### Detalhamento das Dependências Principais
+
+#### Vibium (^0.1.2)
+- **Função**: Framework principal de automação de testes web
+- **Uso no projeto**: Utilizado para controlar o navegador, encontrar elementos, clicar, obter textos, etc.
+- **Exemplo de uso**: `vibe.find(selector).click()`, `vibe.go(url)`
+
+#### Mocha (^11.7.5)
+- **Função**: Framework de testes que fornece estrutura para organizar e executar testes
+- **Uso no projeto**: Estrutura de testes com `describe`, `context`, `it`, `before`, `after`
+- **Características**: Suporta testes assíncronos, hooks, e relatórios detalhados
+
+#### Chai (^6.2.2)
+- **Função**: Biblioteca de asserções para validações em testes
+- **Uso no projeto**: Utilizado no `ExpectCustomCommand` para fazer asserções
+- **Estilo**: BDD style (`.to.contain()`, `.to.equal()`, etc.)
+
+#### TypeScript (^5.7.2)
+- **Função**: Superset do JavaScript com tipagem estática
+- **Uso no projeto**: Todo o código é escrito em TypeScript para type safety
+- **Configuração**: `tsconfig.json` com configurações strict mode
+
+#### @dotenvx/dotenvx (^1.51.2)
+- **Função**: Carrega variáveis de ambiente de arquivos `.env`
+- **Uso no projeto**: Utilizado para carregar configurações como `BASE_URL` e `PRODUCT_NAME`
+- **Segurança**: Suporta variáveis criptografadas
+
+## ⚙️ Configuração
+
+### Pré-requisitos
+
+- Node.js (versão compatível com TypeScript 5.7.2)
+- npm ou yarn
+
+### Instalação
+
+```bash
+npm install
+```
+
+### Variáveis de Ambiente
+
+Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+
+```env
+BASE_URL=https://exemplo.com
+PRODUCT_NAME=Nome do Produto
+```
+
+## 🚀 Scripts Disponíveis
+
+| Script | Comando | Descrição |
+|--------|---------|-----------|
+| **test** | `npm test` | Executa todos os testes usando dotenvx para carregar variáveis de ambiente |
+
+### Exemplo de Execução
+
+```bash
+# Executar todos os testes
+npm test
+```
+
+## 💻 Como Usar
+
+### Padrão de Teste Triple A
+
+Os testes seguem o padrão **Triple A** (Arrange, Act, Assert):
+
+- **Arrange**: Preparação do ambiente e dados necessários
+- **Act**: Execução da ação a ser testada
+- **Assert**: Validação do resultado esperado
+
+### Estrutura de Testes
+
+A estrutura dos testes segue o padrão:
+
+- **`describe`**: Nome do produto (usando `process.env.PRODUCT_NAME`)
+- **`context`**: Funcionalidade que será testada (ex: "Login/Signup")
+- **`it`**: Caso de teste específico com identificação `[CT-XXX]`
+
+### Criando um Novo Teste
+
+1. **Criar seletores** em `components/[feature]/[feature].elements.ts`:
+```typescript
+export const loginComponents = {
+    txtTitleLoginForm: ".login-form h2"
+}
+```
+
+2. **Criar dados de teste** em `data/[feature]/[feature].data.ts`:
+```typescript
+export const ct001 = {
+    titleLoginForm: "Login to your account"
+}
+```
+
+3. **Criar teste** em `tests/[feature]/[feature].test.ts`:
+```typescript
+import {
+    baseCustomCommand, clickCustomCommand,
+    expectCustomCommand, getTextCustomCommand
+} from "../../constants";
+import { menuComponents } from "../../components/menu/menu.elements";
+import { loginComponents } from "../../components/login/login.elements";
+import { ct001 } from "../../data/login/login.data";
+
+describe(`${process.env.PRODUCT_NAME}`, () => {
+
+    context(`${process.env.PRODUCT_NAME} - Login/Signup`, () => {
+
+        before('Navigate to the login page', async () => {
+            await baseCustomCommand.navigateTo(process.env.BASE_URL!)
+        })
+
+        it(`[CT-001] - Login/Signup - Validate title login form`, async () => {
+            // Arrange: Preparação (se necessário)
+            
+            // Act: Execução da ação
+            await clickCustomCommand.click(menuComponents.btnSignupLoginMenu)
+            
+            // Assert: Validação
+            await expectCustomCommand.expect(
+                ct001.titleLoginForm, 
+                await getTextCustomCommand.getText(loginComponents.txtTitleLoginForm)
+            )
+        })
+
+        after('Finish test execution', async () => {
+            await baseCustomCommand.finishTestExecution()
+        })
+    })
+})
+```
+
+**Nota**: Os testes utilizam diretamente os Custom Commands com os seletores definidos nos arquivos `*.elements.ts` e dados dos arquivos `*.data.ts`. Não é necessário criar classes Page Object - a abstração é feita através dos Custom Commands.
+
+### Usando Custom Commands
+
+O projeto fornece Custom Commands reutilizáveis:
+
+- **`baseCustomCommand.navigateTo(url)`**: Navega para uma URL
+- **`baseCustomCommand.finishTestExecution()`**: Fecha o navegador
+- **`clickCustomCommand.click(selector)`**: Clica em um elemento
+- **`getTextCustomCommand.getText(selector)`**: Obtém o texto de um elemento
+- **`expectCustomCommand.expect(expected, actual)`**: Faz uma asserção
+
+### Gerenciando Dados de Teste
+
+Os dados de teste são organizados na pasta `data/` seguindo a mesma estrutura de funcionalidades:
+
+- Cada arquivo `*.data.ts` contém objetos exportados com dados específicos
+- Nomenclatura: `ct[numero]` para identificar cada caso de teste
+- Exemplo:
+
+```typescript
+// data/login/login.data.ts
+export const ct001 = {
+    titleLoginForm: "Login to your account"
+}
+
+export const ct002 = {
+    email: "test@example.com",
+    password: "password123"
+}
+```
+
+Isso permite centralizar os dados de teste e facilitar a manutenção, além de separar dados de lógica de teste.
+
+## 🔧 Configuração TypeScript
+
+O projeto utiliza TypeScript com configurações strict mode ativadas:
+
+- **Target**: ES2020
+- **Module**: CommonJS
+- **Strict Mode**: Ativado (inclui `strictNullChecks`, `noImplicitAny`, etc.)
+- **Source Maps**: Ativado para debugging
+- **Type Definitions**: Inclui tipos para Mocha, Chai e Node.js
+
+## 📝 Convenções de Código
+
+- **Nomenclatura**: 
+  - Classes: PascalCase (ex: `BaseCustomCommand`)
+  - Arquivos: camelCase (ex: `base.customCommand.ts`)
+  - Constantes: camelCase (ex: `baseCustomCommand`)
+  - Dados de teste: `ct[numero]` (ex: `ct001`, `ct002`)
+- **Organização**: Separação clara entre seletores (components), dados (data), Custom Commands (core) e testes
+- **Estrutura de Testes**:
+  - `describe`: Nome do produto (`process.env.PRODUCT_NAME`)
+  - `context`: Funcionalidade a ser testada
+  - `it`: Caso de teste com identificação `[CT-XXX]`
+- **Padrão de Teste**: Triple A (Arrange, Act, Assert)
+- **Documentação**: JSDoc nos métodos públicos dos Custom Commands
+
+## 🤝 Contribuindo
+
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 📄 Licença
+
+ISC
+
+## 🔗 Links Úteis
+
+- [Repositório GitHub](https://github.com/qajonatasmartins/qa.vibuim-ai.typescript)
+- [Issues](https://github.com/qajonatasmartins/qa.vibuim-ai.typescript/issues)
