@@ -250,13 +250,14 @@ teste                   # ❌ Formato incorreto
 
 #### 🚀 pre-push
 Executado automaticamente antes de cada push:
-- ✅ Executa todos os testes (`npm test`)
+- ✅ Valida código com **ESLint** em todo o projeto
+- ✅ Verifica tipos TypeScript (`type-check`)
 
 ### Como Funciona
 
-1. **Ao fazer commit**: O código é validado automaticamente
+1. **Ao fazer commit**: O código é validado automaticamente (lint-staged + type-check)
 2. **Se houver erros**: O commit é bloqueado até que sejam corrigidos
-3. **Ao fazer push**: Os testes são executados para garantir que tudo está funcionando
+3. **Ao fazer push**: O código é validado novamente (lint + type-check) antes do push
 
 ### Pular Validações (Não Recomendado)
 
@@ -480,7 +481,7 @@ O projeto utiliza TypeScript com configurações strict mode ativadas:
 
 - ✅ Todos os commits devem seguir o padrão **Conventional Commits**
 - ✅ O código deve passar nas validações do ESLint
-- ✅ Os testes devem estar passando antes do push
+- ✅ O código deve passar na verificação de tipos TypeScript
 - ✅ Documente mudanças significativas no README.md
 
 ## 📄 Licença

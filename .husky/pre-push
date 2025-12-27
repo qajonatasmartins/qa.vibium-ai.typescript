@@ -3,7 +3,11 @@
 
 echo "🚀 Executando validações antes do push..."
 
-# Executa testes antes de fazer push
-echo "🧪 Executando testes..."
-npm test
+# Executa ESLint
+echo "🔍 Executando ESLint..."
+npm run lint
+
+# Verifica tipos TypeScript
+echo "🔎 Verificando tipos TypeScript..."
+npm run type-check
 

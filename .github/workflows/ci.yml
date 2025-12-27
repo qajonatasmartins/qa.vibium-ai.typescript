@@ -55,10 +55,13 @@ jobs:
             - name: 📦 Instalar dependências
               run: npm ci
 
+            - name: 📝 Criar arquivo .env
+              run: |
+                  echo "BASE_URL=${{ secrets.BASE_URL}}" >> .env
+                  echo "PRODUCT_NAME=${{ secrets.PRODUCT_NAME}}" >> .env
+                  echo "HEADLESS=${{ secrets.HEADLESS}}" >> .env
+
             - name: 🧪 Executar testes
-              env:
-                  BASE_URL: ${{ secrets.BASE_URL || 'https://automationexercise.com' }}
-                  PRODUCT_NAME: ${{ secrets.PRODUCT_NAME || 'Automation Exercise' }}
               run: npm test
 
             - name: 📊 Publicar resultados dos testes

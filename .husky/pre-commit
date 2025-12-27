@@ -1,1 +1,12 @@
-npm test
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Executando validações antes do commit..."
+
+# Executa lint-staged para validar apenas arquivos staged
+echo "🔍 Executando lint-staged..."
+npx lint-staged
+
+# Verifica tipos TypeScript
+echo "🔎 Verificando tipos TypeScript..."
+npm run type-check
