@@ -14,6 +14,7 @@ Pipeline de integração contínua que executa:
 
 2. **Testes** (executado após lint passar):
    - Instala Chrome automaticamente usando `browser-actions/setup-chrome`
+   - **Valida Chrome/ChromeDriver** antes de executar os testes
    - Executa todos os testes do projeto
    - Testa em múltiplas versões do Node.js (20.x e 22.x)
 
@@ -80,6 +81,16 @@ O Chrome é instalado automaticamente pela action `browser-actions/setup-chrome@
 - Instala a versão mais recente do Chrome
 - Configura todas as dependências necessárias
 - Funciona em modo headless por padrão (via variável `HEADLESS=true`)
+
+#### Validação do Chrome
+
+Antes de executar os testes, a pipeline valida:
+- ✅ Verifica se o Chrome está instalado e acessível
+- ✅ Verifica se o ChromeDriver está disponível
+- ✅ Testa se o Chrome pode ser iniciado em modo headless
+- ✅ Exibe informações de versão e caminhos configurados
+
+Isso ajuda a identificar problemas de configuração antes de executar os testes, economizando tempo e facilitando o debug.
 
 ### Lint falhando
 

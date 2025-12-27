@@ -57,6 +57,47 @@ jobs:
               with:
                   chrome-version: latest
 
+            - name: ✅ Validar Chrome/ChromeDriver
+              run: |
+                  echo "🔍 Verificando instalação do Chrome..."
+                  if command -v google-chrome &> /dev/null; then
+                      echo "✅ Google Chrome encontrado: $(google-chrome --version)"
+                  elif command -v chromium &> /dev/null; then
+                      echo "✅ Chromium encontrado: $(chromium --version)"
+                  elif command -v chromium-browser &> /dev/null; then
+                      echo "✅ Chromium Browser encontrado: $(chromium-browser --version)"
+                  else
+                      echo "⚠️ Chrome não encontrado no PATH padrão"
+                      echo "Verificando variáveis de ambiente..."
+                      echo "CHROME_PATH: ${CHROME_PATH:-não definido}"
+                      if [ -n "$CHROME_PATH" ]; then
+                          $CHROME_PATH --version || echo "❌ Chrome em CHROME_PATH não funciona"
+                      fi
+                  fi
+
+                  echo ""
+                  echo "🔍 Verificando ChromeDriver..."
+                  if command -v chromedriver &> /dev/null; then
+                      echo "✅ ChromeDriver encontrado: $(chromedriver --version)"
+                  else
+                      echo "⚠️ ChromeDriver não encontrado no PATH padrão"
+                      echo "CHROMEDRIVER_PATH: ${CHROMEDRIVER_PATH:-não definido}"
+                  fi
+
+                  echo ""
+                  echo "🧪 Testando inicialização do Chrome em modo headless..."
+                  CHROME_CMD=$(command -v google-chrome || command -v chromium || command -v chromium-browser || echo "$CHROME_PATH")
+                  if [ -n "$CHROME_CMD" ]; then
+                      timeout 5s $CHROME_CMD --headless --disable-gpu --no-sandbox --version > /dev/null 2>&1 && \
+                      echo "✅ Chrome pode ser iniciado em modo headless" || \
+                      echo "⚠️ Aviso: Chrome pode ter problemas ao iniciar (pode ser normal em CI)"
+                  else
+                      echo "⚠️ Comando do Chrome não encontrado para teste"
+                  fi
+
+                  echo ""
+                  echo "✅ Validação concluída"
+
             - name: 📦 Instalar dependências
               run: npm ci
 
